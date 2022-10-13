@@ -1,14 +1,13 @@
 #!/bin/bash
 #change video
-youtube-dl -o "video" https://www.youtube.com/watch?v=kt2D7xl06mk
+mkdir videofolder
+cd ./videofolder
+VALUE=1
+youtube-dl -o "video" https://www.reddit.com/r/leagueoflegends/comments/y2qtmo/t1_gumayusi_lucian_insane_outplay_in_solo_queue/ && VALUE=0
 
-FILE=testi.mp4
-if [ -f "$FILE" ]
-then
-  continue
-else
-  [ -e "video" ] && rm video
-  exit 1
+if [ ! -e "video.*" ]; then
+  VALUE=1
 fi
-
-rm video
+cd ..
+rm -r videofolder
+exit $VALUE
