@@ -4,35 +4,7 @@ REPOURL="https://github.com/ytdl-org/youtube-dl"
 # First 
 FAILED=0
 PASSED=0
-
-error() {
-    tput setaf 1; echo "Error: $1"
-    exit 1
-}
-
-fail() {
-    MSG="\nFAIL: $1 returned non-zero value\n"
-    tput setaf 1; echo -e $MSG; tput setaf 7
-    FAILED=$(( $FAILED + 1 ))
-}
-
-pass() {
-    MSG="\nPASS: $1\n"
-    tput setaf 2; echo -e $MSG; tput setaf 7
-    PASSED=$(( $PASSED + 1 ))
-}
-
-runpython() {
-    python3 "../test/$1" && \
-        pass $1 || \
-        fail $1
-}
-
-runbash() {
-    sh "../test/$1" && \
-        pass $1 || \
-        fail $1
-}
+SKIPPED=0
 
 # Source TESTTAGS env variable if declared in tests.sh file
 [ -e "tags.sh" ] && source tags.sh
@@ -41,9 +13,34 @@ runbash() {
 
 IFS="AND" read -ra TESTS <<< "$TESTTAGS"
 
-#mkdir repo && cd repo
-#git clone $REPOURL
+error() {
+    tput setaf 1; echo "Error: $1"
+    exit 1
+}
 
+runtest() {
+    if [ $2 = "python" ]; then
+        python "../test/$1"
+    elif [ $2 = "bash" ]; then
+        bash "../test/$1"
+    fi
+    
+    CODE=$?
+
+    if [ $CODE -eq 0 ]; then
+        MSG="\nPASS: $1\n"
+        tput setaf 2; echo -e $MSG; tput setaf 7
+        PASSED=$(( $PASSED + 1 ))
+    elif [ $CODE -eq 2 ]; then
+        MSG="\nSKIP: $1\n"
+        tput setaf 3; echo -e $MSG; tput setaf 7
+        SKIPPED=$(( $SKIPPED + 1 ))
+    else
+        MSG="\nFAIL: $1 returned non-zero value\n"
+        tput setaf 1; echo -e $MSG; tput setaf 7
+        FAILED=$(( $FAILED + 1 ))
+    fi
+}
 
 for i in "${TESTS[@]}"
 do
@@ -52,11 +49,17 @@ do
         tput setaf continue
 
     egrep -q ".*\.py" <<< $i && \
-        runpython $i
+        runtest $i "python"
 
     egrep -q ".*\.sh" <<< $i && \
-        runbash $i
+        runtest $i "bash"
 done
 
-tput setaf 2; echo -e "Test results: $FAILED FAILED and $PASSED PASSED"
+COLOR=2 # Green if no fails, otherwise red
+[ ! $FAILED -eq 0 ] && COLOR=1
+
+RESULT="Test results, in total ${#TESTS[@]} tests were ran:\n"
+RESULT+="\t$FAILED FAILED | $SKIPPED SKIPPED | $PASSED PASSED"
+
+tput setaf $COLOR; echo -e "$RESULT"
 
