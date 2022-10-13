@@ -9,3 +9,4 @@ find . -type f -name "video.*" || VALUE=1
 cd ..
 rm -r videofolder
 exit $VALUE
+
