@@ -6,8 +6,7 @@ cd ./videofolder
 
 youtube-dl -o "video.%(ext)s" --recode-video mkv https://www.reddit.com/r/leagueoflegends/comments/y2qtmo/t1_gumayusi_lucian_insane_outplay_in_solo_queue/ && VALUE=0
 
-FILE=video.mkv
-if [ ! -e "video.*" ]; then
+if [ ! -e "video.mkv" ]; then
   VALUE=1
 fi
 
