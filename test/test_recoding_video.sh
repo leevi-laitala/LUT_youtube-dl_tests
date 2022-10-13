@@ -1,15 +1,16 @@
 #!/bin/bash
 #need ffmpeg
-youtube-dl -o "video.%(ext)s" --recode-video mkv https://www.youtube.com/watch?v=kt2D7xl06mk
+VALUE=1
+mkdir videofolder
+cd ./videofolder
+
+youtube-dl -o "video.%(ext)s" --recode-video mkv https://www.reddit.com/r/leagueoflegends/comments/y2qtmo/t1_gumayusi_lucian_insane_outplay_in_solo_queue/ && VALUE=0
 
 FILE=video.mkv
-if [ -f "$FILE" ]
-then
-  continue
-else
-  [ -e "video.mkv" ] && rm video.mkv
-  [ -e "video.mp4" ] && rm video.mp4
-  exit 1
+if [ ! -e "video.*" ]; then
+  VALUE=1
 fi
 
-rm video.mkv
+cd ..
+rm -r videofolder
+exit $VALUE
