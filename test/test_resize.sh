@@ -8,14 +8,14 @@
 # environment variable. Does not however guarantee support. 
 
 # Check if xterm in TERM
-egrep "xterm" <<< $TERM || \
+grep -E "xterm" <<< "$TERM" || \
     { echo "Requires xterm, or compatible. Skipping ..." && exit 2 ; }
 
 # Create and cd to temp directory for download
 [ -d tmp ] && rm -r tmp
 mkdir tmp
 [ ! -d tmp ] && exit 1
-cd tmp
+cd tmp || exit 1
 
 # Save current terminal size
 COLS=$(tput cols)
@@ -26,8 +26,9 @@ youtube-dl "https://www.youtube.com/watch?v=y-E7_VHLvkE" &
 
 # Function to check if current youtube-dl instance is still running
 checkstatus () {
+    # shellcheck disable=SC2009
     CHECK=$(ps -A | grep "python" | grep "youtube-dl" | awk '{print $1}')
-    [ $1 -eq $CHECK ] || \
+    [ "$1" -eq "$CHECK" ] || \
         { echo "Error: youtube-dl exited unexpectedly while resizing terminal window" && \
           cleanup; \
           exit 1 ; }
@@ -39,27 +40,30 @@ cleanup() {
     SIZE+="$ROWS;"
     SIZE+="$COLS"
     SIZE+="t"
+    # shellcheck disable=SC2059
+    printf "$SIZE"
     pwd | grep tmp && cd ..
     [ -d tmp ] && rm -r tmp
 }
 
 # Save the pid of the youtube-dl instance
+# shellcheck disable=SC2009
 PID=$(ps -A | grep "python" | grep "youtube-dl" | awk '{print $1}')
 
 # Check if running
-checkstatus $PID
+checkstatus "$PID"
 
 # Resize, sleep and check status. Repeat for few times
 printf '\e[8;50;100t'
-sleep 1
-checkstatus $PID
+sleep 2
+checkstatus "$PID"
 printf '\e[8;30;10t'
-sleep 1
-checkstatus $PID
+sleep 2
+checkstatus "$PID"
 printf '\e[8;10;300t'
-sleep 1
-checkstatus $PID
+sleep 2
+checkstatus "$PID"
 
 # Finally kill youtube-dl instance and clean
-kill $PID
+kill "$PID"
 cleanup
