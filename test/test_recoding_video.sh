@@ -1,6 +1,8 @@
 #!/bin/bash
-#need ffmpeg
+[ -z "$YTEXEC" ] && { tput setaf 2; echo "ERROR: No YTEXEC environment variable defined." && exit 1 ; }
 VALUE=1
+#need ffmpeg
+ffmpeg &> /dev/null || { tput setaf 2; echo "ERROR: No ffmpeg installed. Skipping ..." && exit 2 ; }
 mkdir videofolder
 cd ./videofolder
 
