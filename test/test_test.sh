@@ -2,4 +2,10 @@
 
 echo "Jee :DDD"
 
-$YTEXEC "https://www.youtube.com/watch?v=y-E7_VHLvkE"
+mkdir out && cd out || exit 1
+
+$YTEXEC -o "jee" "https://www.youtube.com/watch?v=y-E7_VHLvkE"
+
+cd .. || exit 1
+
+rm -rf out
