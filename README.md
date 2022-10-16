@@ -87,3 +87,7 @@ crashes between resizes.
 
 Download video with specific upload date, and check if the dates match.
 
+##### 5. Private video
+
+Try to download a private video from YouTube. It should fail if the video can be downloaded, and
+will pass if youtube-dl throws error.
