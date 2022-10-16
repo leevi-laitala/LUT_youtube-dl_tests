@@ -33,7 +33,7 @@ usage() {
 
 # Source TESTTAGS env variable if declared in tests.sh file
 # shellcheck disable=SC1091
-[ -e "tags.sh" ] && source ./tags.sh
+[ -z "$TESTTAGS" ] && [ -e "tags.sh" ] && source ./tags.sh
 
 [ -z "$TESTTAGS" ] && error "TESTTAGS env variable is empty"
 
