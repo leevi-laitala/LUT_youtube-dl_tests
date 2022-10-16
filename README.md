@@ -12,7 +12,7 @@ work best.
 You can install youtube-dl from your favourite package manager, but is not required.
 Since the runnerscript will clone the youtube-dl github repository by default.
 
-Ffmpeg should be installed to enable video recoding.
+`ffmpeg` should be installed to enable video recoding.
 
 <br>
 
@@ -35,6 +35,16 @@ You can also list the tests with `-t` or `--tags` flags. They will override the 
 file, and the tests listed in the `TESTTAGS` environment variable.
 
 For example: `./runtests.sh --tags "test.shANDothertest.shANDmoretests.sh"`
+
+<br>
+
+#### Running tests manually
+
+Since the tests are bash or python scripts, you can easily run them manually. However the
+tests use `YTEXEC` environment variable as the executable. So you need to specify that
+before running. Same way as with the `-p` or `--path-to-executable` flags from the runnerscript.
+
+This can be done `YTEXEC="yt-dlp" ./test.sh`
 
 <br>
 
