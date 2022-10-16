@@ -1,5 +1,6 @@
 #!/bin/bash
-#REPOURL="https://github.com/ytdl-org/youtube-dl"
+REPOURL="https://github.com/ytdl-org/youtube-dl"
+export YTEXEC="youtube-dl"
 
 # Keep track of tests status'
 FAILED=0
@@ -8,6 +9,7 @@ SKIPPED=0
 
 # Boolean
 EXITONFAILURE=0
+CLONEREPO=1
 
 # Print usage function
 usage() {
@@ -22,7 +24,7 @@ usage() {
     USAGE+="\nAvailable flags:\n"
     USAGE+="\t-h | --help               Print this\n"
     USAGE+="\t-e | --exit-on-failure    When set, all tests will skip after first failure\n"
-
+    USAGE+="\t-p | --path-to-executable Set custom youtube-dl executable, otherwise will clone git repo\n"
     echo -e "$USAGE"
 }
 
@@ -40,12 +42,36 @@ while [[ $# -gt 0 ]]; do
             EXITONFAILURE=1
             shift
             ;;
+        -p | --path-to-executable)
+            CLONEREPO=0
+            YTEXEC="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Unknown option $1"
             exit 1
             ;;
     esac
 done
+
+if [ "$CLONEREPO" -eq "1" ]; then
+    # TODO: Y/N prompt here
+    [ -d repo ] && rm -rf repo
+    mkdir repo || exit 1
+    cd repo || exit 1
+    git clone "$REPOURL"
+    YTPATH="repo/youtube-dl/youtube_dl/__main__.py"
+    python --version > /dev/null && \
+        export YTEXEC="python $YTPATH" || \
+        export YTEXEC="python3 $YTPATH"
+fi
+
+# Error function, print message in red, and exit with 1
+error() {
+    tput setaf 1; echo "Error: $1"
+    exit 1
+}
 
 # Source TESTTAGS env variable if declared in tests.sh file
 # shellcheck disable=SC1091
@@ -54,12 +80,6 @@ done
 [ -z "$TESTTAGS" ] && error "TESTTAGS env variable is empty"
 
 IFS="AND" read -ra TESTS <<< "$TESTTAGS"
-
-# Error function, print message in red, and exit with 1
-error() {
-    tput setaf 1; echo "Error: $1"
-    exit 1
-}
 
 # Run the test itself. Supports either python or bash files.
 # If the test passes, meaning exits with 0 as exit code, one is added to the PASSED env var.
