@@ -20,25 +20,22 @@ For example `TESTTAGS="test.shANDothertest.shANDmoretests.sh"`
 
 Tests that are currently implemented:
 
-$$
-\begin{array}{l|l}
+<br>
 
-\text{Name} & \text{Description} \\
+##### 1. Normal run
 
-\hline
+Try to download video, and check if the video exists in filesystem.
 
-\text{Normal run} & \text{Downloads video, and checks if downloaded video exists} \\
+##### 2. Recode video
 
-\hline
+Download video, and convert it to specific format. Check if format is changed in filesystem.
 
-\text{Recode video} & \text{Check if downloaded video is encoded to correct format} \\
+##### 3. Resize terminal window
 
-\hline
+Download video, and resize terminal window to different sizes and check if the application
+crashes between resizes.
 
-\text{Resize} & \text{Check if resizing the terminal emulator window to a small size will bork the output} \\
+##### 4. Date parameter
 
-\end{array}
-$$
-
-
+Download video with specific upload date, and check if the dates match.
 
