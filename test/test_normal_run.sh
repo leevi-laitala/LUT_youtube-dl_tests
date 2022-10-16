@@ -1,5 +1,5 @@
 #!/bin/bash
-[ -z "$YTEXEC" ] && { tput setaf 2; echo "ERROR: No YTEXEC environment variable defined." && exit 1 ; }
+[ -z "$YTEXEC" ] && { tput setaf 1; echo "ERROR: No YTEXEC environment variable defined." && exit 1 ; }
 mkdir videofolder
 cd ./videofolder
 VALUE=1
