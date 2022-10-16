@@ -22,11 +22,20 @@ usage() {
     USAGE+="the testing can be conducted to the end, and the runner script does not need to exit.\n"
     USAGE+="\n\tExample: TESTTAGS='test.shANDothertest.shANDevenmoretests.sh'\n"
     USAGE+="\nAvailable flags:\n"
-    USAGE+="\t-h | --help               Print this\n"
-    USAGE+="\t-e | --exit-on-failure    When set, all tests will skip after first failure\n"
+    USAGE+="\t-h | --help               Print help.\n"
+    USAGE+="\t-e | --exit-on-failure    When set, all tests will skip after first failure.\n"
     USAGE+="\t-p | --path-to-executable Set custom youtube-dl executable, otherwise will clone git repo\n"
+    USAGE+="\t                          and use the youtube-dl version from there.\n"
+    USAGE+="\t-t | --tags               Set test(s) to be conducted, same as defining in TESTTAGS env var\n"
+    USAGE+="\t                          and same as defining them in tags.sh file."
     echo -e "$USAGE"
 }
+
+# Source TESTTAGS env variable if declared in tests.sh file
+# shellcheck disable=SC1091
+[ -e "tags.sh" ] && source ./tags.sh
+
+[ -z "$TESTTAGS" ] && error "TESTTAGS env variable is empty"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -48,6 +57,11 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
+        -t | --tags)
+            TESTTAGS="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Unknown option $1"
             exit 1
@@ -56,28 +70,27 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$CLONEREPO" -eq "1" ]; then
-    # TODO: Y/N prompt here
-    [ -d repo ] && rm -rf repo
-    mkdir repo || exit 1
-    cd repo || exit 1
-    git clone "$REPOURL"
-    YTPATH="repo/youtube-dl/youtube_dl/__main__.py"
-    python --version > /dev/null && \
+    if [ -d "/tmp/repo" ]; then
+        read -r -p "youtube-dl repository already cloned, delete it? [y/N]: "
+        [[ $REPLY =~ ^[Yy] ]] && \
+            rm -rf "/tmp/repo" && { git clone "$REPOURL" "/tmp/repo" ; }
+    else
+        git clone "$REPOURL" "/tmp/repo"
+    fi
+    
+    YTPATH="/tmp/repo/youtube_dl/__main__.py"
+    python --version &> /dev/null && \
         export YTEXEC="python $YTPATH" || \
         export YTEXEC="python3 $YTPATH"
 fi
 
+echo -e "\nINFO: Running tests using $YTEXEC \n"
+
 # Error function, print message in red, and exit with 1
 error() {
-    tput setaf 1; echo "Error: $1"
+    tput setaf 1; echo "ERROR: $1"
     exit 1
 }
-
-# Source TESTTAGS env variable if declared in tests.sh file
-# shellcheck disable=SC1091
-[ -e "tags.sh" ] && source ./tags.sh
-
-[ -z "$TESTTAGS" ] && error "TESTTAGS env variable is empty"
 
 IFS="AND" read -ra TESTS <<< "$TESTTAGS"
 
@@ -122,7 +135,7 @@ for i in "${TESTS[@]}"
 do
     # First check if the file even exists
     [ ! -e "../test/$i" ] && \
-        tput setaf 1 && echo "Could not find test file $i" && \
+        tput setaf 1 && echo "ERROR: Could not find test file $i" && \
         tput setaf 7 && continue
 
     # Check by file extension is the test a python or a bash file
