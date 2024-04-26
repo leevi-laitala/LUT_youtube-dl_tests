@@ -1,6 +1,6 @@
 # Tests for youtube-dl
 
-Contains various tests for youtube-dl. For a school project.
+Contains various tests for youtube-dl. For a school testing course project.
 
 <br>
 
